@@ -11,43 +11,43 @@ import com.intervensim.simulation.Simulation;
 
 public class SimulationCreationPanel extends JMenuBar implements ActionListener{
 	
-	private static final String STRING_NEW_SIMULATION = "Nouvelle simulation";
-	private static final String STRING_LOAD_SIMULATION = "Charger une simulation";
+	private static final String STRING_MENU_FILE = "Fichier";
+	private static final String STRING_MENU_ITEM_NEW_SIMULATION = "Nouvelle simulation";
+	private static final String STRING_MENU_ITEM_LOAD_SIMULATION = "Charger une simulation";
 	
 	private Simulation simulation;
 	private final DisplaySimulationPanel displaySimulationPanel;
+	
+	private final JMenu fileMenu;
+	private final JMenuItem newSimulationMenuItem;
+	private final JMenuItem loadSimulationMenuItem;
 	
 	public SimulationCreationPanel(DisplaySimulationPanel displaySimulationPanel)
 	{
 
 		this.displaySimulationPanel = displaySimulationPanel;
 		
-		JMenu menu1 = new JMenu("Fichier");
-		JMenu menu2 = new JMenu("Edition");
-		/* differents choix de chaque menu */
-		JMenuItem demarrer = new JMenuItem("Démarrer");
-		JMenuItem fin = new JMenuItem("Fin");
-		JMenuItem annuler = new JMenuItem("Annuler");
-		JMenuItem copier = new JMenuItem("Copier");
-		JMenuItem coller = new JMenuItem("Coller");
+		fileMenu = new JMenu(STRING_MENU_FILE);
+		
+		newSimulationMenuItem = new JMenuItem(STRING_MENU_ITEM_NEW_SIMULATION);
+		newSimulationMenuItem.addActionListener(this);
+		loadSimulationMenuItem = new JMenuItem(STRING_MENU_ITEM_LOAD_SIMULATION);
+		loadSimulationMenuItem.addActionListener(this);
 
-		/* Ajouter les choix au menu */
-		menu1.add(demarrer);
-		menu1.add(fin);
-		menu2.add(annuler);
-		menu2.add(copier);
-		menu2.add(coller);
-		/* Ajouter les menu sur la bar de menu */
-		add(menu1);
-		add(menu2);
+
+		/* Add items */
+		fileMenu.add(newSimulationMenuItem);
+		fileMenu.add(loadSimulationMenuItem);
+		/* add menus */
+		add(fileMenu);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().equals(STRING_NEW_SIMULATION)){
+		if(e.getActionCommand().equals(STRING_MENU_ITEM_NEW_SIMULATION)){
 			System.out.println("New Simulation");
 		}
-		else if(e.getActionCommand().equals(STRING_LOAD_SIMULATION)){
+		else if(e.getActionCommand().equals(STRING_MENU_ITEM_LOAD_SIMULATION)){
 			//TODO load simulation
 		}
 	}
