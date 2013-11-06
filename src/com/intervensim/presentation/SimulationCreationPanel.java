@@ -1,40 +1,45 @@
 package com.intervensim.presentation;
 
-import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import com.intervensim.simulation.Simulation;
 
-public class SimulationCreationPanel extends JPanel implements ActionListener{
+public class SimulationCreationPanel extends JMenuBar implements ActionListener{
 	
 	private static final String STRING_NEW_SIMULATION = "Nouvelle simulation";
 	private static final String STRING_LOAD_SIMULATION = "Charger une simulation";
-	
-	private final JButton newSimulationButton;
-	private final JButton loadSimulationButton;
 	
 	private Simulation simulation;
 	private final DisplaySimulationPanel displaySimulationPanel;
 	
 	public SimulationCreationPanel(DisplaySimulationPanel displaySimulationPanel)
 	{
+
 		this.displaySimulationPanel = displaySimulationPanel;
 		
-		setLayout(new GridLayout(8, 1));
-		setPreferredSize(new Dimension(200, 400));
-		
-		newSimulationButton = new JButton(STRING_NEW_SIMULATION);
-		newSimulationButton.addActionListener(this);
-		add(newSimulationButton);
-		
-		loadSimulationButton = new JButton(STRING_LOAD_SIMULATION);
-		loadSimulationButton.addActionListener(this);
-		add(loadSimulationButton);
+		JMenu menu1 = new JMenu("Fichier");
+		JMenu menu2 = new JMenu("Edition");
+		/* differents choix de chaque menu */
+		JMenuItem demarrer = new JMenuItem("Démarrer");
+		JMenuItem fin = new JMenuItem("Fin");
+		JMenuItem annuler = new JMenuItem("Annuler");
+		JMenuItem copier = new JMenuItem("Copier");
+		JMenuItem coller = new JMenuItem("Coller");
+
+		/* Ajouter les choix au menu */
+		menu1.add(demarrer);
+		menu1.add(fin);
+		menu2.add(annuler);
+		menu2.add(copier);
+		menu2.add(coller);
+		/* Ajouter les menu sur la bar de menu */
+		add(menu1);
+		add(menu2);
 	}
 
 	@Override
