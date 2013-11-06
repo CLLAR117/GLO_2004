@@ -164,6 +164,10 @@ public class Noeud {
 		return posY;
 	}
 
+	/**
+	 * get x
+	 * @return int
+	 */
 	public int getSizeX() {
 		return sizeX;
 	}
