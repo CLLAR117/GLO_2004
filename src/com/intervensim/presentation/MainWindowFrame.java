@@ -14,10 +14,12 @@ public class MainWindowFrame extends JFrame{
 	
 	public MainWindowFrame(Simulation simulation, DisplayManager displayManager)
 	{
-		super("Demonstration du GUI avec Afficheur");
+		super("IntervenSIM");
 		setLayout(new BorderLayout());
 		
-		displaySimulationPanel = new DisplaySimulationPanel(displayManager, simulation);
+		displaySimulationPanel = new DisplaySimulationPanel();
+		displaySimulationPanel.addMouseListener(displaySimulationPanel);
+		displaySimulationPanel.addMouseMotionListener(displaySimulationPanel);
 		add(displaySimulationPanel, BorderLayout.CENTER);
 		
 		simulationCreationPanel = new SimulationCreationPanel(displaySimulationPanel);
