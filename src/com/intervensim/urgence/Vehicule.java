@@ -49,12 +49,43 @@ public class Vehicule {
 		}
 		while (distance > 0) {
 			Noeud n = path.get(1);
-			double d = n.distance(present);
+			double d = n.distance(pos_x, pos_y);
+			if (distance - d < 0) {
+				pos_x += (int)((distance/d) * ((double)(n.getPosX() - pos_x)));
+				pos_y += (int)((distance/d) * ((double)(n.getPosY() - pos_y)));
+				distance = 0;
+			} else {
+				distance = distance - d;
+				pos_x = n.getPosX();
+				pos_y = n.getPosY();
+				path.remove(0);
+				present = n;
+				if (urgence.location == present) {
+					return distance;
+				}
+			}
 		}
 		return distance;
 	}
 
 	public void tick(long curtime) {
-
+		long t = curtime - time;
+		time = curtime;
+		if (t <= 0 || urgence == null) {
+			return;
+		}
+		if (urgence.time > curtime) {
+			return;
+		}
+		if (urgence.time > (curtime - t)) {
+			t =  t - (urgence.time - (curtime - t));
+		}
+		if (present == urgence.location) {
+			t = (int)(moveonPath(vitesse * t)/vitesse);
+		}
+		urgence.time_treatment_left -= t;
+		if (urgence.time_treatment_left <= 0) {
+			urgence = null;
+		}
 	}
 }

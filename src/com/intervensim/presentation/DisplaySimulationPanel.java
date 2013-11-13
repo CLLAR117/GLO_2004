@@ -160,12 +160,16 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 	}
 
 	public void addVehicule(double v) {
-		Vehicule veh = new Vehicule(selectedNoeud, v);
-		vehicules.add(veh);
+	if (selectedNoeud != null) {
+            Vehicule veh = new Vehicule(selectedNoeud, v);
+            vehicules.add(veh);
+		}
 	}
 
 	public void addUrgence(long t, long t_treatment) {
-		Urgence u = new Urgence(selectedNoeud, t, t_treatment);
-		urgences.add(u);
+    if (selectedNoeud != null) {
+            Urgence u = new Urgence(selectedNoeud, t, t_treatment);
+            urgences.add(u);
+		}
 	}
 }
