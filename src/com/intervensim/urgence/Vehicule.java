@@ -19,13 +19,16 @@ public class Vehicule {
 	}
 
 	public boolean treatUrgence(Urgence u, long curtime) {
+		if (u.in_treatment == true) {
+			return false;
+		}
 		path = present.getPathTo(u.location);
 		if (path == null) {
 			return false;
 		}
 		urgence = u;
 		time = curtime;
-		tick(curtime);
+		u.in_treatment = true;
 		return true;
 	}
 
@@ -48,7 +51,12 @@ public class Vehicule {
 			return distance;
 		}
 		while (distance > 0) {
-			Noeud n = path.get(1);
+			Noeud n = null;
+			if (path.size() > 1) {
+				n = path.get(1);
+			} else {
+				n = path.get(0);
+			}
 			double d = n.distance(pos_x, pos_y);
 			if (distance - d < 0) {
 				pos_x += (int)((distance/d) * ((double)(n.getPosX() - pos_x)));
@@ -80,12 +88,26 @@ public class Vehicule {
 		if (urgence.time > (curtime - t)) {
 			t =  t - (urgence.time - (curtime - t));
 		}
-		if (present == urgence.location) {
+		if (present != urgence.location) {
 			t = (int)(moveonPath(vitesse * t)/vitesse);
 		}
 		urgence.time_treatment_left -= t;
 		if (urgence.time_treatment_left <= 0) {
 			urgence = null;
 		}
+	}
+	public int getPosX() {
+		return pos_x;
+	}
+
+	public int getPosY() {
+		return pos_y;
+	}
+	public double distance(Noeud n) {
+		java.util.List<Noeud> p = present.getPathTo(n);
+		if (p == null || urgence != null) {
+			return Double.MAX_VALUE;
+		}
+		return present.pathLenght(p);
 	}
 }
