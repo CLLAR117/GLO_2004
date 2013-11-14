@@ -14,17 +14,15 @@ import com.intervensim.urgence.Urgence;
 import com.intervensim.urgence.Vehicule;
 
 class DisplaySimulationPanel extends JPanel implements MouseListener,
-		MouseMotionListener {
+	MouseMotionListener {
 	private boolean mouseDown = false;
 	private Noeud selectedNoeud = null;
-	private Noeud mselectedNoeud = null;
 	private java.util.List<Noeud> noeuds = new java.util.ArrayList<Noeud>();
 	private java.util.List<Urgence> urgences = new java.util.ArrayList<Urgence>();
 	private java.util.List<Vehicule> vehicules = new java.util.ArrayList<Vehicule>();
-	private java.util.List<Noeud> path;
 	private int mouse_x;
 	private int mouse_y;
-	
+
 	public void addNoeud(int x, int y) {
 		noeuds.add(new Noeud(x, y));
 		System.out.println("Added: " + x + ", " + y);
@@ -46,7 +44,7 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		while (it.hasNext()) {
 			Noeud t = it.next();
 			if (t.getPosX() - t.getSizeX() < x && x < t.getPosX() + t.getSizeX()
-					&& t.getPosY() - t.getSizeY() < y && y < t.getPosY() + t.getSizeY()) {
+			        && t.getPosY() - t.getSizeY() < y && y < t.getPosY() + t.getSizeY()) {
 				return t;
 			}
 		}
@@ -56,11 +54,24 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.setColor(Color.BLUE);
+		java.util.Iterator<Urgence> itu = urgences.iterator();
+		while (itu.hasNext()) {
+			Urgence u = itu.next();
+			g.fillRect(u.location.getPosX() - 5, u.location.getPosY() - 5, 10, 10);
+		}
+		g2d.setColor(Color.GREEN);
+		java.util.Iterator<Vehicule> itv = vehicules.iterator();
+		while (itv.hasNext()) {
+			Vehicule v = itv.next();
+			g.fillRect(v.getPosX() - 3, v.getPosY() - 3, 6, 6);
+		}
+		g2d.setColor(Color.BLACK);
 		java.util.Iterator<Noeud> it = noeuds.iterator();
 		while (it.hasNext()) {
 			Noeud t = it.next();
 			g2d.drawRect(t.getPosX() - t.getSizeX() / 2, t.getPosY() - t.getSizeY() / 2,
-					t.getSizeX(), t.getSizeY());
+			             t.getSizeX(), t.getSizeY());
 			java.util.Iterator<Noeud> it1 = t.getConnectedIterator();
 			while (it1.hasNext()) {
 				Noeud t1 = it1.next();
@@ -74,37 +85,26 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		Noeud t = selectedNoeud;
 		if (t != null) {
 			g.fillRect(t.getPosX() - t.getSizeX() / 2, t.getPosY() - t.getSizeY() / 2,
-					t.getSizeX(), t.getSizeY());
-		}
-		if (path != null) {
-			java.util.Iterator<Noeud> it1 = path.iterator();
-			Noeud t1 = it1.next();
-			while (it1.hasNext()) {
-				Noeud t2 = it1.next();
-				g2d.drawLine(t1.getPosX(), t1.getPosY(), t2.getPosX(), t2.getPosY());
-				t1 = t2;
-			}
+			           t.getSizeX(), t.getSizeY());
 		}
 	}
-
-	private void refreshPaths() {
-		if (selectedNoeud != null && mselectedNoeud != null) {
-			path = selectedNoeud.getPathTo(mselectedNoeud);
-		} else {
-			path = null;
-		}
-	}
-
+	private long temp_curtime = 0;
 	public void mousePressed(MouseEvent evt) {
 		if (evt.getButton() == MouseEvent.BUTTON1) {
 			mouseDown = true;
 			selectedNoeud = getNoeudPos(evt.getX(), evt.getY());
-			refreshPaths();
 		}
 		if (evt.getButton() == MouseEvent.BUTTON2) {
 			System.out.println("Mid button");
-			mselectedNoeud = getNoeudPos(evt.getX(), evt.getY());
-			refreshPaths();
+			if (selectedNoeud == null) {
+				temp_curtime++;
+				tick(temp_curtime);
+			}
+			if (vehicules.size() < 1) {
+				addVehicule(3.0);
+			} else {
+				addUrgence(3, 12);
+			}
 		}
 		if (evt.getButton() == MouseEvent.BUTTON3) {
 			Noeud t = getNoeudPos(evt.getX(), evt.getY());
@@ -113,7 +113,6 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 			} else {
 				t.disconnectAll();
 				delNoeud(t);
-				refreshPaths();
 			}
 		}
 		revalidate();
@@ -126,7 +125,6 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 				Noeud n = getNoeudPos(evt.getX(), evt.getY());
 				if (n != null) {
 					n.connectBoth(selectedNoeud);
-					refreshPaths();
 				}
 			}
 			mouseDown = false;
@@ -160,12 +158,52 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 	}
 
 	public void addVehicule(double v) {
-		Vehicule veh = new Vehicule(selectedNoeud, v);
-		vehicules.add(veh);
+		if (selectedNoeud != null) {
+			Vehicule veh = new Vehicule(selectedNoeud, v);
+			vehicules.add(veh);
+		}
 	}
 
 	public void addUrgence(long t, long t_treatment) {
-		Urgence u = new Urgence(selectedNoeud, t, t_treatment);
-		urgences.add(u);
+		if (selectedNoeud != null) {
+			Urgence u = new Urgence(selectedNoeud, t, t_treatment);
+			urgences.add(u);
+		}
+	}
+	public void tick(long curtime) {
+		System.out.println("tick " + curtime);
+		java.util.Iterator<Vehicule> itv = vehicules.iterator();
+		while (itv.hasNext()) {
+			Vehicule v = itv.next();
+			v.tick(curtime);
+			if (!v.isFree()) {
+				continue;
+			}
+			Urgence next_urgence = null;
+			double dist_urgence = Double.MAX_VALUE;
+			java.util.Iterator<Urgence> itu = urgences.iterator();
+			while (itu.hasNext()) {
+				Urgence u = itu.next();
+				if (u.time > curtime || u.in_treatment == true) {
+					continue;
+				}
+				double temp_d = v.distance(u.location);
+				if (temp_d < dist_urgence) {
+					next_urgence = u;
+					dist_urgence = temp_d;
+				}
+			}
+			if (dist_urgence < Double.MAX_VALUE && next_urgence != null) {
+				v.treatUrgence(next_urgence, curtime);
+			}
+		}
+		java.util.Iterator<Urgence> itu = urgences.iterator();
+		while (itu.hasNext()) {
+			Urgence u = itu.next();
+			if (u.time_treatment_left <= 0) {
+				urgences.remove(u);
+				break;
+			}
+		}
 	}
 }

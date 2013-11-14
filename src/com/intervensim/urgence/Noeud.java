@@ -57,9 +57,12 @@ public class Noeud {
 
 	public double distance(Noeud target) {
 		return Math.sqrt(Math.pow(target.getPosY() - posY, 2)
-				+ Math.pow(target.getPosX() - posX, 2));
+		                 + Math.pow(target.getPosX() - posX, 2));
 	}
-
+	public double distance(int x, int y) {
+		return Math.sqrt(Math.pow(y - posY, 2)
+		                 + Math.pow(x - posX, 2));
+	}
 	public double pathLenght(java.util.List<Noeud> path) {
 		double ret = 0;
 		java.util.Iterator<Noeud> it = path.iterator();
