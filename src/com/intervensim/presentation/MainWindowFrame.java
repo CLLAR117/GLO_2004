@@ -24,7 +24,7 @@ public class MainWindowFrame extends JFrame {
 		/* add the menu to the frame */
 		simulationCreationPanel = new SimulationCreationPanel(
 		    displaySimulationPanel);
-		setJMenuBar(simulationCreationPanel);
+		add(simulationCreationPanel, BorderLayout.NORTH);
 
 		setPreferredSize(new Dimension(800, 400));
 		setLocation(300, 200);

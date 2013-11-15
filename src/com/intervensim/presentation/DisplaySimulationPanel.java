@@ -22,6 +22,19 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 	private java.util.List<Vehicule> vehicules = new java.util.ArrayList<Vehicule>();
 	private int mouse_x;
 	private int mouse_y;
+	
+	private int actionFlag = 0;
+	public static final int ACTION_FLAG_NODE_ADD = 1;
+	
+	public int getActionFlag()
+	{
+		return actionFlag;
+	}
+	
+	public void setActionFlag(int actionFlag)
+	{
+		this.actionFlag = actionFlag;
+	}
 
 	public void addNoeud(int x, int y) {
 		noeuds.add(new Noeud(x, y));
