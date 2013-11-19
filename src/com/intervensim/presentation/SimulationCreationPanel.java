@@ -26,7 +26,8 @@ public class SimulationCreationPanel extends JTabbedPane implements ActionListen
 	private static final String STRING_MENU_ITEM_SAVE_SIMULATION = "Charger une simulation";
 	
 	private static final String STRING_MENU_EDITION_NODE_ADD = "Ajouter un noeud";
-	private static final String STRING_MENU_EDITION_ARC_ADD = "Ajouter un arc";
+	private static final String STRING_MENU_EDITION_VEHICULE_ADD = "Ajouter un véhicule d'urgence";
+	private static final String STRING_MENU_EDITION_URGENCE_ADD = "Ajouter une situation d'urgence";
 
 	private Simulation simulation;
 	private final DisplaySimulationPanel displaySimulationPanel;
@@ -36,7 +37,8 @@ public class SimulationCreationPanel extends JTabbedPane implements ActionListen
 	private JButton buttonNewSimulation;
 	
 	private JButton buttonNodeAdd;
-	private JButton buttonArcAdd;
+	private JButton buttonVehiculeAdd;
+	private JButton buttonUrgenceAdd;
 
 	public SimulationCreationPanel(DisplaySimulationPanel displaySimulationPanel) {
 
@@ -76,8 +78,13 @@ public class SimulationCreationPanel extends JTabbedPane implements ActionListen
 		buttonNodeAdd.addActionListener(this);
 		panel.add(buttonNodeAdd);
 		
-		buttonArcAdd = new JButton(STRING_MENU_EDITION_ARC_ADD);
-		panel.add(buttonArcAdd);
+		buttonVehiculeAdd = new JButton(STRING_MENU_EDITION_VEHICULE_ADD);
+		buttonVehiculeAdd.addActionListener(this);
+		panel.add(buttonVehiculeAdd);
+		
+		buttonUrgenceAdd = new JButton(STRING_MENU_EDITION_URGENCE_ADD);
+		buttonUrgenceAdd.addActionListener(this);
+		panel.add(buttonUrgenceAdd);
 		
 		return panel;
 	}
@@ -105,6 +112,14 @@ public class SimulationCreationPanel extends JTabbedPane implements ActionListen
 		if(source == buttonNodeAdd)
 		{
 			displaySimulationPanel.setActionFlag(DisplaySimulationPanel.ACTION_FLAG_NODE_ADD);
+		}
+		else if(source == buttonVehiculeAdd)
+		{
+			displaySimulationPanel.setActionFlag(DisplaySimulationPanel.ACTION_FLAG_VEHICULE_ADD);
+		}
+		else if(source == buttonUrgenceAdd)
+		{
+			displaySimulationPanel.setActionFlag(DisplaySimulationPanel.ACTION_FLAG_URGENCE_ADD);
 		}
 	}
 }

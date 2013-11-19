@@ -3,18 +3,22 @@ package com.intervensim.presentation;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import com.intervensim.urgence.Noeud;
 import com.intervensim.urgence.Urgence;
 import com.intervensim.urgence.Vehicule;
 
 class DisplaySimulationPanel extends JPanel implements MouseListener,
-	MouseMotionListener {
+		MouseMotionListener {
 	private boolean mouseDown = false;
 	private Noeud selectedNoeud = null;
 	private java.util.List<Noeud> noeuds = new java.util.ArrayList<Noeud>();
@@ -22,17 +26,33 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 	private java.util.List<Vehicule> vehicules = new java.util.ArrayList<Vehicule>();
 	private int mouse_x;
 	private int mouse_y;
-	
-	private int actionFlag = 0;
+
+	private int actionFlag = ACTION_FLAG_NULL;
 	public static final int ACTION_FLAG_NODE_ADD = 1;
-	
-	public int getActionFlag()
+	public static final int ACTION_FLAG_VEHICULE_ADD = 2;
+	public static final int ACTION_FLAG_URGENCE_ADD = 3;
+	public static final int ACTION_FLAG_NULL = 0;
+
+	private JPopupMenu nodeEditPopupMenu = new JPopupMenu("Popup");
+	private JMenuItem nodeEditPopupMenuItemDelete = new JMenuItem("Supprimer");
+
+	public DisplaySimulationPanel() 
 	{
+		nodeEditPopupMenuItemDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectedNoeud.disconnectAll();
+				delNoeud(selectedNoeud);
+				selectedNoeud = null;
+			}
+		});
+		nodeEditPopupMenu.add(nodeEditPopupMenuItemDelete);
+	}
+
+	public int getActionFlag() {
 		return actionFlag;
 	}
-	
-	public void setActionFlag(int actionFlag)
-	{
+
+	public void setActionFlag(int actionFlag) {
 		this.actionFlag = actionFlag;
 	}
 
@@ -56,8 +76,10 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		java.util.Iterator<Noeud> it = noeuds.iterator();
 		while (it.hasNext()) {
 			Noeud t = it.next();
-			if (t.getPosX() - t.getSizeX() < x && x < t.getPosX() + t.getSizeX()
-			        && t.getPosY() - t.getSizeY() < y && y < t.getPosY() + t.getSizeY()) {
+			if (t.getPosX() - t.getSizeX() < x
+					&& x < t.getPosX() + t.getSizeX()
+					&& t.getPosY() - t.getSizeY() < y
+					&& y < t.getPosY() + t.getSizeY()) {
 				return t;
 			}
 		}
@@ -71,7 +93,8 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		java.util.Iterator<Urgence> itu = urgences.iterator();
 		while (itu.hasNext()) {
 			Urgence u = itu.next();
-			g.fillRect(u.location.getPosX() - 5, u.location.getPosY() - 5, 10, 10);
+			g.fillRect(u.location.getPosX() - 5, u.location.getPosY() - 5, 10,
+					10);
 		}
 		g2d.setColor(Color.GREEN);
 		java.util.Iterator<Vehicule> itv = vehicules.iterator();
@@ -83,29 +106,66 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		java.util.Iterator<Noeud> it = noeuds.iterator();
 		while (it.hasNext()) {
 			Noeud t = it.next();
-			g2d.drawRect(t.getPosX() - t.getSizeX() / 2, t.getPosY() - t.getSizeY() / 2,
-			             t.getSizeX(), t.getSizeY());
+			g2d.drawRect(t.getPosX() - t.getSizeX() / 2,
+					t.getPosY() - t.getSizeY() / 2, t.getSizeX(), t.getSizeY());
 			java.util.Iterator<Noeud> it1 = t.getConnectedIterator();
 			while (it1.hasNext()) {
 				Noeud t1 = it1.next();
-				g2d.drawLine(t.getPosX(), t.getPosY(), t1.getPosX(), t1.getPosY());
+				g2d.drawLine(t.getPosX(), t.getPosY(), t1.getPosX(),
+						t1.getPosY());
 			}
 		}
 		if (selectedNoeud != null && mouseDown == true && mouse_x != 0) {
-			g2d.drawLine(selectedNoeud.getPosX(), selectedNoeud.getPosY(), mouse_x, mouse_y);
+			g2d.drawLine(selectedNoeud.getPosX(), selectedNoeud.getPosY(),
+					mouse_x, mouse_y);
 		}
 		g2d.setColor(Color.RED);
 		Noeud t = selectedNoeud;
 		if (t != null) {
-			g.fillRect(t.getPosX() - t.getSizeX() / 2, t.getPosY() - t.getSizeY() / 2,
-			           t.getSizeX(), t.getSizeY());
+			g.fillRect(t.getPosX() - t.getSizeX() / 2,
+					t.getPosY() - t.getSizeY() / 2, t.getSizeX(), t.getSizeY());
 		}
 	}
+
 	private long temp_curtime = 0;
+
 	public void mousePressed(MouseEvent evt) {
 		if (evt.getButton() == MouseEvent.BUTTON1) {
 			mouseDown = true;
-			selectedNoeud = getNoeudPos(evt.getX(), evt.getY());
+			// add a node
+			if (actionFlag == ACTION_FLAG_NODE_ADD) {
+				// test if node exists
+				Noeud t = getNoeudPos(evt.getX(), evt.getY());
+				if (t == null) {
+					// add node if not
+					addNoeud(evt.getX(), evt.getY());
+					//remove flag
+					actionFlag = ACTION_FLAG_NULL;
+				}
+			}
+			//add a vehicule
+			else if(actionFlag == ACTION_FLAG_VEHICULE_ADD)
+			{
+				Noeud t = getNoeudPos(evt.getX(), evt.getY());
+				addVehicule(t, 3.0);
+				
+				//remove action flag
+				actionFlag = ACTION_FLAG_NULL;
+			}
+			//add an urgence
+			else if(actionFlag == ACTION_FLAG_URGENCE_ADD)
+			{
+				Noeud n = getNoeudPos(evt.getX(), evt.getY());
+				addUrgence(n, 3, 12);
+				
+				//remove action flag
+				actionFlag = ACTION_FLAG_NULL;
+			}
+			//select a node
+			else{
+				selectedNoeud = getNoeudPos(evt.getX(), evt.getY());
+			}
+			
 		}
 		if (evt.getButton() == MouseEvent.BUTTON2) {
 			System.out.println("Mid button");
@@ -120,12 +180,13 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 			}
 		}
 		if (evt.getButton() == MouseEvent.BUTTON3) {
+			// test if click on node
 			Noeud t = getNoeudPos(evt.getX(), evt.getY());
-			if (t == null) {
-				addNoeud(evt.getX(), evt.getY());
-			} else {
-				t.disconnectAll();
-				delNoeud(t);
+			if (t != null) {
+				//select the node
+				selectedNoeud = t;
+				nodeEditPopupMenu.show(evt.getComponent(), evt.getX(),
+						evt.getY());
 			}
 		}
 		revalidate();
@@ -170,19 +231,54 @@ class DisplaySimulationPanel extends JPanel implements MouseListener,
 		repaint();
 	}
 
-	public void addVehicule(double v) {
-		if (selectedNoeud != null) {
+	/**
+	 * Add a vehicule
+	 * @param v : int Vehicule speed
+	 * @return boolean if Vehicule has been added or not
+	 */
+	public boolean addVehicule(double v) {
+		if (selectedNoeud != null && vehicules.size() == 0) {
 			Vehicule veh = new Vehicule(selectedNoeud, v);
 			vehicules.add(veh);
+			return true;
 		}
+		return false;
+	}
+	
+	/**
+	 * Add a vehicule
+	 * @param n : Noeud The vehicule node
+	 * @param v : int Vehicule speed
+	 * @return boolean if Vehicule has been added or not
+	 */
+	public boolean addVehicule(Noeud n, double v)
+	{
+		if (n != null && vehicules.size() == 0) {
+			Vehicule veh = new Vehicule(n, v);
+			vehicules.add(veh);
+			return true;
+		}
+		return false;
 	}
 
-	public void addUrgence(long t, long t_treatment) {
+	public boolean addUrgence(long t, long t_treatment) {
 		if (selectedNoeud != null) {
 			Urgence u = new Urgence(selectedNoeud, t, t_treatment);
 			urgences.add(u);
+			return true;
 		}
+		return false;
 	}
+	
+	public boolean addUrgence(Noeud n, long t, long t_treatment) {
+		if (n != null) {
+			Urgence u = new Urgence(n, t, t_treatment);
+			urgences.add(u);
+			return true;
+		}
+		return false;
+	}
+
 	public void tick(long curtime) {
 		System.out.println("tick " + curtime);
 		java.util.Iterator<Vehicule> itv = vehicules.iterator();
